@@ -98,7 +98,6 @@ jobs:
               id: build
               run: |
                   npm run build
-
             - name: Deploy
               run: |
                   git config --global user.name $user_name
