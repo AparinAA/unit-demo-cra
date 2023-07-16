@@ -1,9 +1,6 @@
 name: Test and lint PR
 on:
-    # push:
-    #   branches:
-    #     - 'main'
-    pull_request:
+    workflow_call:
 jobs:
     lint:
         runs-on: ubuntu-22.04
