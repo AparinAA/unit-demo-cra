@@ -89,7 +89,7 @@ jobs:
     release:
         name: Release on GH-Pages
         needs: [issue, run_check]
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-latest
         permissions: write-all
         steps:
             - name: Checkout
