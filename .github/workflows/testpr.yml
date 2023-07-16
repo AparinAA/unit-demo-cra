@@ -31,7 +31,7 @@ jobs:
                   node-version: 18
             - name: Install dep
               run: npm ci
-            - name: Download playwright browsers
+            - name: Download playwright browser
               run: npx playwright install --with-deps chromium
             - name: Start e2e tests
               run: npx playwright test --project=chromium
