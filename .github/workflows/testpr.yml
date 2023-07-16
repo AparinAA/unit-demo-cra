@@ -1,8 +1,6 @@
 name: Test PR and lint
 on:
     pull_request:
-        branches:
-            - "main"
 jobs:
     unint-tests:
         runs-on: ubuntu-22.04
