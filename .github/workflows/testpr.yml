@@ -1,20 +1,37 @@
-name: Test PR and lint
+name: Test and lint PR
 on:
-    pull_request:
-        branches:
-            - main
+    workflow_call:
 jobs:
-    unint-tests:
-        runs-on: ubuntu-22.04
+    lint:
+        runs-on: ubuntu-latest
         steps:
             - name: Get repo code
               uses: actions/checkout@v3
-            - name: Install dependencies
+            - name: Install depe
+              run: npm ci
+            - name: Start lint
+              run: npm run lint
+    unint-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Get repo code
+              uses: actions/checkout@v3
+            - name: Install dep
               run: npm ci
             - name: Start unit-tests
-              run: |
-                  for commit in $(git rev-list ${{ github.base_ref }}..${{ github.head_ref }}); do
-                    git checkout $commit
-                    npm run lint
-                    npm test
-                  done
+              run: npm test
+    e2e-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Get repo code
+              uses: actions/checkout@v3
+            - name: Setup Node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+            - name: Install dep
+              run: npm ci
+            - name: Download playwright browser
+              run: npx playwright install --with-deps chromium
+            - name: Start e2e tests
+              run: npx playwright test --project=chromium
