@@ -21,107 +21,107 @@ jobs:
               run: |
                   echo "changelog=$(git log --pretty=format:'%h   %s' $(git for-each-ref --sort=creatordate --format '%(refname)' refs/tags | grep -e 'v[0-9][0-9]*' | tail -2 | head -1)..${{ github.ref }} | head -1)" >> $GITHUB_OUTPUT
 
-    #         - name: Create an issue
-    #           uses: actions/github-script@v6
-    #           with:
-    #               result-encoding: string
-    #               retries: 3
-    #               script: |
-    #                   try {
-    #                     await github.rest.issues.createLabel({
-    #                       owner: context.repo.owner,
-    #                       repo: context.repo.repo,
-    #                       name: "RELEASE"
-    #                     })
-    #                   } catch (e) {
-    #                     console.log('release label exists')
-    #                   }
+            - name: Create an issue
+              uses: actions/github-script@v6
+              with:
+                  result-encoding: string
+                  retries: 3
+                  script: |
+                      try {
+                        await github.rest.issues.createLabel({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          name: "RELEASE"
+                        })
+                      } catch (e) {
+                        console.log('release label exists')
+                      }
 
-    #                   const issueName = context.payload.ref.replace(/refs\/tags\//, '');
-    #                   console.log('ISSUE ', issueName);
+                      const issueName = context.payload.ref.replace(/refs\/tags\//, '');
+                      console.log('ISSUE ', issueName);
 
-    #                   const issues = await github.request('GET /repos/{owner}/{repo}/issues?labels={labels}', {
-    #                     owner: context.repo.owner,
-    #                     repo: context.repo.repo,
-    #                     labels: ["RELEASE"]
-    #                   })
+                      const issues = await github.request('GET /repos/{owner}/{repo}/issues?labels={labels}', {
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        labels: ["RELEASE"]
+                      })
 
-    #                   console.log(issues)
-    #                   let issueExists = false;
-    #                   let issueNumber = 0;
+                      console.log(issues)
+                      let issueExists = false;
+                      let issueNumber = 0;
 
-    #                   for (const issue of issues.data) {
-    #                     if (issue.title === issueName) {
-    #                       issueExists = true;
-    #                       issueNumber = issue.number;
-    #                       break;
-    #                     }
-    #                   }
+                      for (const issue of issues.data) {
+                        if (issue.title === issueName) {
+                          issueExists = true;
+                          issueNumber = issue.number;
+                          break;
+                        }
+                      }
 
-    #                   if (!issueExists) {
-    #                     const result = await github.rest.issues.create({
-    #                       owner: context.repo.owner,
-    #                       repo: context.repo.repo,
-    #                       title: issueName,
-    #                       labels: ["RELEASE"]
-    #                     })
+                      if (!issueExists) {
+                        const result = await github.rest.issues.create({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          title: issueName,
+                          labels: ["RELEASE"]
+                        })
 
-    #                     issueNumber = result.data.number;
-    #                   }
+                        issueNumber = result.data.number;
+                      }
 
-    #                   github.rest.issues.createComment({
-    #                     owner: context.repo.owner,
-    #                     repo: context.repo.repo,
-    #                     issue_number: issueNumber,
-    #                     body: "Changelog: \n${{ steps.changelog.outputs.changelog }}"
-    #                   })
+                      github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber,
+                        body: "Changelog: \n${{ steps.changelog.outputs.changelog }}"
+                      })
 
-    #                   console.log('PAYLOAD: ', context);
+                      console.log('PAYLOAD: ', context);
 
-    #                   github.rest.issues.createComment({
-    #                     owner: context.repo.owner,
-    #                     repo: context.repo.repo,
-    #                     issue_number: issueNumber,
-    #                     body: `Workflow run link: \n https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
-    #                   })
-    # run_check:
-    #     uses: ./.github/workflows/testing.yml
-    # release:
-    #     name: Release on GH-Pages
-    #     needs: [issue, run_check]
-    #     runs-on: ubuntu-20.04
-    #     permissions: write-all
-    #     steps:
-    #         - name: Checkout
-    #           uses: actions/checkout@v3
-    #           with:
-    #               fetch-depth: 0
-    #         - name: Close an issue
-    #           uses: actions/github-script@v6
-    #           with:
-    #               result-encoding: string
-    #               retries: 3
-    #               script: |
-    #                   const issueName = context.payload.ref.replace(/refs\/tags\//, '');
+                      github.rest.issues.createComment({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber,
+                        body: `Workflow run link: \n https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+                      })
+    run_check:
+        uses: ./.github/workflows/testing.yml
+    release:
+        name: Release on GH-Pages
+        needs: [issue, run_check]
+        runs-on: ubuntu-20.04
+        permissions: write-all
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+            - name: Close an issue
+              uses: actions/github-script@v6
+              with:
+                  result-encoding: string
+                  retries: 3
+                  script: |
+                      const issueName = context.payload.ref.replace(/refs\/tags\//, '');
 
-    #                   const issues = await github.request('GET /repos/{owner}/{repo}/issues?labels={labels}', {
-    #                     owner: context.repo.owner,
-    #                     repo: context.repo.repo,
-    #                     labels: ["RELEASE"]
-    #                   })
+                      const issues = await github.request('GET /repos/{owner}/{repo}/issues?labels={labels}', {
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        labels: ["RELEASE"]
+                      })
 
-    #                   let issueNumber = 0;
+                      let issueNumber = 0;
 
-    #                   for (const issue of issues.data) {
-    #                     if (issue.title === issueName) {
-    #                       issueNumber = issue.number;
-    #                       break;
-    #                     }
-    #                   }
+                      for (const issue of issues.data) {
+                        if (issue.title === issueName) {
+                          issueNumber = issue.number;
+                          break;
+                        }
+                      }
 
-    #                   await github.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
-    #                     owner: context.repo.owner,
-    #                     repo: context.repo.repo,
-    #                     issue_number: issueNumber,
-    #                     state: 'closed',
-    #                   })
+                      await github.request('PATCH /repos/{owner}/{repo}/issues/{issue_number}', {
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber,
+                        state: 'closed',
+                      })
