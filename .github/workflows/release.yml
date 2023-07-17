@@ -1,4 +1,4 @@
-name: Release
+name: Release code
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
     issue:
-        name: Issue creator
+        name: Issue cr.
         runs-on: ubuntu-latest
         permissions: write-all
         steps:
@@ -19,9 +19,9 @@ jobs:
             - name: Generate changelog
               id: changelog
               run: |
-                  echo "changelog=$(git log --pretty=format:'%h   %s' $(git for-each-ref --sort=creatordate --format '%(refname)' refs/tags | grep -e 'v[0-9][0-9]*' | tail -2 | head -1)..${{ github.ref }} | head -1)" >> $GITHUB_OUTPUT
+                  echo "changelog=$(git log --pretty=format:'%h   %s'  $(git for-each-ref --sort=creatordate --format '%(refname)' refs/tags | grep -e 'v[0-9][0-9]*' | tail -2 | head -1)..${{ github.ref }} | tr '\n' ';')" >> $GITHUB_OUTPUT
 
-            - name: Create an issue
+            - name: Create an issue and scripts
               uses: actions/github-script@v6
               with:
                   result-encoding: string
@@ -38,7 +38,6 @@ jobs:
                       }
 
                       const issueName = context.payload.ref.replace(/refs\/tags\//, '');
-                      console.log('ISSUE ', issueName);
 
                       const issues = await github.request('GET /repos/{owner}/{repo}/issues?labels={labels}', {
                         owner: context.repo.owner,
@@ -46,7 +45,6 @@ jobs:
                         labels: ["RELEASE"]
                       })
 
-                      console.log(issues)
                       let issueExists = false;
                       let issueNumber = 0;
 
@@ -87,7 +85,7 @@ jobs:
     run_check:
         uses: ./.github/workflows/testpr.yml
     release:
-        name: Release on GH-Pages
+        name: Release on gh-pages
         needs: [issue, run_check]
         runs-on: ubuntu-latest
         permissions: write-all
@@ -96,11 +94,33 @@ jobs:
               uses: actions/checkout@v3
               with:
                   fetch-depth: 0
+
+            - name: Get code
+              uses: actions/checkout@v3
+            - name: Install dep
+              run: npm ci
+            - name: Build react
+              id: build
+              run: |
+                  npm run build
+
+            - name: Deploy
+              run: |
+                  git config --global user.name $user_name
+                  git config --global user.email $user_email
+                  git remote set-url origin https://${github_token}@github.com/${repository}
+                  npm run deploy
+              env:
+                  user_name: "github-actions[bot]"
+                  user_email: "github-actions[bot]@users.noreply.github.com"
+                  github_token: ${{ secrets.ACTIONS_DEPLOY_ACCESS_TOKEN }}
+                  repository: ${{ github.repository }}
+
             - name: Close an issue
               uses: actions/github-script@v6
               with:
                   result-encoding: string
-                  retries: 3
+                  retries: 2
                   script: |
                       const issueName = context.payload.ref.replace(/refs\/tags\//, '');
 

@@ -1,7 +1,7 @@
 {
     "name": "unit-demo-cra",
     "version": "0.1.0",
-    "homepage": ".",
+    "homepage": "https://aparinaa.github.io/unit-demo-cra/",
     "private": true,
     "dependencies": {
         "@testing-library/jest-dom": "^5.16.5",
@@ -11,6 +11,8 @@
         "@types/node": "^18.11.9",
         "@types/react": "^18.0.25",
         "@types/react-dom": "^18.0.9",
+        "caniuse-lite": "^1.0.30001516",
+        "gh-pages": "^5.0.0",
         "jest-teamcity": "^1.11.0",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -32,7 +34,8 @@
         "test": "react-scripts test",
         "e2e": "playwright test --project=chromium && playwright show-report",
         "test-ci": "CI=true npm test -- --reporters=\"default\" --reporters=\"jest-html-reporter\" --reporters=\"jest-teamcity\"",
-        "lint": "./node_modules/.bin/eslint ./"
+        "lint": "./node_modules/.bin/eslint ./",
+        "deploy": "gh-pages -d build"
     },
     "eslintConfig": {
         "extends": [
